@@ -179,16 +179,11 @@ private struct EhFloatingTabBarModifier<Tab: Hashable>: ViewModifier {
         content
             .onPreferenceChange(EhHidesTabBarKey.self) { isHidden = $0 }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if !shouldHide {
-                    EhFloatingTabBar(items: items, selection: $selection, onReselect: onReselect)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+                EhFloatingTabBar(items: items, selection: $selection, onReselect: onReselect)
+                    .offset(y: shouldHide ? EhSize.tabBarHeight + EhSize.tabBarBottomInset + 40 : 0)
+                    .opacity(shouldHide ? 0 : 1)
+                    .allowsHitTesting(!shouldHide)
             }
-            // 键盘弹出时不要把导航条顶起来——它应该留在原地被键盘盖住。
-            // 必须作用在 safeAreaInset 的**结果**上：被键盘推动的是这个容器，
-            // 加在内层的浮条自身没有效果。
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-            .animation(.easeInOut(duration: 0.22), value: shouldHide)
     }
 }
 
